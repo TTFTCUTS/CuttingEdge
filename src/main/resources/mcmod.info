@@ -1,0 +1,16 @@
+[
+{
+  "modid": "morvyblox",
+  "name": "MorvyBlox",
+  "description": "A simplified micropart system made for building only.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/ttftcuts",
+  "updateUrl": "https://github.com/ttftcuts",
+  "authorList": ["TTFTCUTS"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
