@@ -1,7 +1,11 @@
 package ttftcuts.cuttingedge;
 
+import net.minecraftforge.common.config.Configuration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import ttftcuts.cuttingedge.portacart.ModulePortacart;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -21,9 +25,32 @@ public class CuttingEdge {
     @SidedProxy(serverSide="ttftcuts.cuttingedge.CommonProxy", clientSide="ttftcuts.cuttingedge.ClientProxy")
     public static CommonProxy proxy;
     
+    public static Module[] modules;
+    
+    public static Configuration config;
+    
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+    	modules = new Module[]{
+    		new ModulePortacart(),
+    	};
+    	proxy.getSidedModules();
+    	
+    	config = new Configuration(event.getSuggestedConfigurationFile());
+    	
+    	try {
+    		config.load();
+    		
+    		for (Module m : modules) {
+        		m.configure(config);
+        	}
+    	} catch (Exception e) {
+    		logger.error("Could not load config.");
+    	} finally {
+    		config.save();
+    	}
+
     	proxy.preInit(event);
     }
     

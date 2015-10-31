@@ -1,8 +1,8 @@
 [
 {
-  "modid": "morvyblox",
-  "name": "MorvyBlox",
-  "description": "A simplified micropart system made for building only.",
+  "modid": "cuttingedge",
+  "name": "Cutting Edge",
+  "description": "A compilation of small mods in one place.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://github.com/ttftcuts",
