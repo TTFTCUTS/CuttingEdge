@@ -7,8 +7,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 public class ClientProxy extends CommonProxy {
 	@Override
 	public void getSidedModules() {
-		for (Module m : CuttingEdge.modules) {
-			m = m.makeClient();
+		for (int i=0; i<CuttingEdge.modules.length; i++) {
+			CuttingEdge.modules[i] = CuttingEdge.modules[i].makeClient();
 		}
 	}
 	

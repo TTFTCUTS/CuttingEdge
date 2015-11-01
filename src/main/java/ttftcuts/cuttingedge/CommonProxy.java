@@ -11,6 +11,7 @@ public class CommonProxy {
 	
 	public void preInit(FMLPreInitializationEvent event) {		
 		for (Module m : CuttingEdge.modules) {
+			CuttingEdge.logger.info("Module "+m.name+" "+(m.enabled?"enabled":"disabled")+": "+m);
 			if (m.enabled) {
 				m.preInit(event);
 			}

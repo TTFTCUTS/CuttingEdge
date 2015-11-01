@@ -14,9 +14,11 @@ public abstract class Module {
 		this.name = name;
 	}
 	
-	public void configure(Configuration config) {
-		this.enabled = config.get(name, "enabled", true).getBoolean();
+	public boolean shouldLoad() {
+		return true;
 	}
+	
+	public abstract void configure(Configuration config);
 	
 	public abstract void preInit(FMLPreInitializationEvent event);
 	

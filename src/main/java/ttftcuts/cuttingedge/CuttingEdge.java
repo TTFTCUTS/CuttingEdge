@@ -43,6 +43,7 @@ public class CuttingEdge {
     		config.load();
     		
     		for (Module m : modules) {
+    			m.enabled = config.get(m.name, "enabled", true).getBoolean() && m.shouldLoad();
         		m.configure(config);
         	}
     	} catch (Exception e) {
