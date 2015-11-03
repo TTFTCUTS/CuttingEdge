@@ -2,6 +2,7 @@ package ttftcuts.cuttingedge.portacart;
 
 import java.lang.reflect.Method;
 
+import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.util.NetworkUtil;
 import baubles.api.BaublesApi;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -26,7 +27,7 @@ public class ClickEventHandler {
 		try {
 			unpressMethod.invoke(sneak);
 		} catch (Exception e) {
-			// discard I guess.
+			CuttingEdge.logger.warn(e);
 		}
 	}
 	
