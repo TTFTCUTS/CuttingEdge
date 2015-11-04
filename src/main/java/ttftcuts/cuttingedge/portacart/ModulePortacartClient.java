@@ -6,10 +6,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class ModulePortacartClient extends ModulePortacart {
-
-	public ModulePortacartClient() {
-		super();
-	}
 	
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {

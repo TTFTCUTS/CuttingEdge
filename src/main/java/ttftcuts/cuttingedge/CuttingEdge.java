@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ttftcuts.cuttingedge.portacart.ModulePortacart;
+import ttftcuts.cuttingedge.treetap.ModuleTreetap;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -34,6 +35,7 @@ public class CuttingEdge {
     {
     	modules = new Module[]{
     		new ModulePortacart(),
+    		new ModuleTreetap(),
     	};
     	proxy.getSidedModules();
     	
