@@ -74,12 +74,12 @@ public class ModuleTreetap extends Module {
 		if (Loader.isModLoaded("IC2")) {
 			Block wood = GameRegistry.findBlock("IC2", "blockRubWood");
 			Block leaves = GameRegistry.findBlock("IC2", "blockRubLeaves");
-			tappables.add(new TreeType(wood,-1,leaves,-1,4,2,8,rubbersap,1.0));
+			tappables.add(new TreeType(wood,-1,leaves,-1,4,2,8,rubbersap,0.0005));
 		}
 		if (Loader.isModLoaded("MineFactoryReloaded")) {
 			Block wood = GameRegistry.findBlock("MineFactoryReloaded", "rubberwood.log");
 			Block leaves = GameRegistry.findBlock("MineFactoryReloaded", "rubberwood.leaves");
-			tappables.add(new TreeType(wood,-1,leaves,0,1,2,8,rubbersap,1.0));
+			tappables.add(new TreeType(wood,-1,leaves,0,1,2,8,rubbersap,0.0005));
 		}
 	}
 

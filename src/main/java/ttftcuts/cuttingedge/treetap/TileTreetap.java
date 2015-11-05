@@ -15,6 +15,11 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 	public FluidTank tank = new FluidTank(4000);
 	public ForgeDirection direction = ForgeDirection.UNKNOWN;
 	
+	public double fill = 0.0;	
+	public double rate = 0.0;
+	public int checktimer = 0;
+	public static final int checkinterval = 300;
+	
 	public TileTreetap(){}
 	
 	public TileTreetap(int direction) {
@@ -29,13 +34,24 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 		}
 		boolean update = false;
 		
+		if (this.checktimer == 0) {
+			this.calculateRate();
+		} else {
+			this.checktimer--;
+		}
+		
 		if (this.tank.getFluidAmount() < this.tank.getCapacity()) {
 			TreeType tree = BlockTreetap.getTappable(worldObj, xCoord - this.direction.offsetX, yCoord, zCoord - this.direction.offsetZ);
 			
 			if (tree != null) {
-				// temp
-				this.tank.fill(new FluidStack(tree.fluid,1000), true);
-				update = true;
+				this.fill += this.rate;
+				
+				if (this.fill >= 1.0) {
+					int amount = (int)Math.floor(this.fill);
+					this.fill -= amount;
+					this.tank.fill(new FluidStack(tree.fluid, amount), true);
+					update = true;
+				}
 			}
 		}
 		
@@ -102,12 +118,14 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 	public void readCustomNBT(NBTTagCompound nbt, boolean descPacket) {
 		this.readTank(nbt);	
 		this.direction = ForgeDirection.getOrientation(nbt.getInteger("dir"));
+		this.fill = nbt.getDouble("fill");
 	}
 
 	@Override
 	public void writeCustomNBT(NBTTagCompound nbt, boolean descPacket) {
 		this.writeTank(nbt, false);		
 		nbt.setInteger("dir", this.direction.ordinal());
+		nbt.setDouble("fill", this.fill);
 	}
 	
 	public void readTank(NBTTagCompound nbt)
@@ -122,5 +140,47 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 		if(!toItem || write) {
 			nbt.setTag("tank", tankTag);
 		}
+	}
+	
+	protected void calculateRate() {
+		this.rate = 0.0;
+		
+		int x = this.xCoord - this.direction.offsetX;
+		int y = this.yCoord;
+		int z = this.zCoord - this.direction.offsetZ;
+		
+		TreeType tree = BlockTreetap.getTappable(worldObj, x,y,z);
+		
+		y++;
+		
+		int leaves = 0;
+		
+		for (int i=0; i<tree.maxHeight; i++) {
+			if (tree.isTrunk(worldObj, x, y, z)) {
+				for (int ox = -tree.radius; ox<= tree.radius; ox++) {
+					for (int oz = -tree.radius; oz<= tree.radius; oz++) {
+						if (tree.isLeaves(worldObj, x+ox, y, z+oz)) {
+							leaves++;
+						}
+					}
+				}
+			} else {
+				break;
+			}
+		}
+		
+		for (int i=0; i<tree.canopyHeight; i++) {
+			for (int ox = -tree.radius; ox<= tree.radius; ox++) {
+				for (int oz = -tree.radius; oz<= tree.radius; oz++) {
+					if (tree.isLeaves(worldObj, x+ox, y, z+oz)) {
+						leaves++;
+					}
+				}
+			}
+		}
+		
+		this.rate = leaves * tree.rate;
+		
+		this.checktimer = checkinterval;
 	}
 }

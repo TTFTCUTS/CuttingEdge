@@ -1,6 +1,7 @@
 package ttftcuts.cuttingedge.treetap;
 
 import net.minecraft.block.Block;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 
 public class TreeType {
@@ -28,5 +29,15 @@ public class TreeType {
 		
 		this.fluid = fluid;
 		this.rate = rate;
+	}
+	
+	public boolean isTrunk(World world, int x, int y, int z) {
+		Block block = world.getBlock(x, y, z);
+		return block == this.trunk && (this.trunkMeta == -1 || block.getDamageValue(world, x, y, z) == this.trunkMeta);
+	}
+	
+	public boolean isLeaves(World world, int x, int y, int z) {
+		Block block = world.getBlock(x, y, z);
+		return block == this.leaves && (this.leafMeta == -1 || block.getDamageValue(world, x, y, z) == this.leafMeta);
 	}
 }

@@ -4,6 +4,7 @@ import static net.minecraftforge.common.util.ForgeDirection.EAST;
 import static net.minecraftforge.common.util.ForgeDirection.NORTH;
 import static net.minecraftforge.common.util.ForgeDirection.SOUTH;
 import static net.minecraftforge.common.util.ForgeDirection.WEST;
+import ttftcuts.cuttingedge.util.FluidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -89,59 +90,15 @@ public class BlockTreetap extends BlockContainer {
 			return true;
 		}
 
-		ItemStack current = entityplayer.inventory.getCurrentItem();
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (!world.isRemote && te != null && te instanceof TileTreetap) {
+			TileTreetap tap = (TileTreetap)te;
 
-		if (current != null) {
-			TileEntity tile = world.getTileEntity(x, y, z);
-			if (tile != null && tile instanceof TileTreetap) {
-				TileTreetap tap = (TileTreetap)tile;
-				
-				if (FluidContainerRegistry.isEmptyContainer(current)) {
-					FluidStack available = tap.getTankInfo(ForgeDirection.UNKNOWN)[0].fluid;
-					
-					if (available != null) {
-						ItemStack filled = FluidContainerRegistry.fillFluidContainer(available, current);
-						
-						FluidStack filling = FluidContainerRegistry.getFluidForFilledItem(filled);
-						
-						if (filling != null) {
-							if (!entityplayer.capabilities.isCreativeMode) {
-								if (current.stackSize > 1) {
-									if (!entityplayer.inventory.addItemStackToInventory(filled)) {
-										return false;
-									} else {
-										current.stackSize--;
-									}
-								} else {
-									entityplayer.inventory.setInventorySlotContents(entityplayer.inventory.currentItem, null);
-									entityplayer.inventory.setInventorySlotContents(entityplayer.inventory.currentItem, filled);
-									
-								}
-							}
-							tap.drain(ForgeDirection.UNKNOWN, filling.amount, true);
-							
-							return true;
-						}
-					}
-				} else if (current.getItem() instanceof IFluidContainerItem) {
-					if (current.stackSize != 1) {
-						return false;
-					}
-					
-					if (!world.isRemote) {
-						IFluidContainerItem container = (IFluidContainerItem) current.getItem();
-						FluidStack liquid = container.getFluid(current);
-						boolean mustDrain = liquid == null || liquid.amount == 0;
-						if (mustDrain || !entityplayer.isSneaking()) {
-							liquid = tap.drain(ForgeDirection.UNKNOWN, 1000, false);
-							int qtyToFill = container.fill(current, liquid, true);
-							tap.drain(ForgeDirection.UNKNOWN, qtyToFill, true);
-						}
-					}
-				}
+			if (!entityplayer.isSneaking() && FluidUtil.fillPlayerItemFromFluidHandler(world, tap, entityplayer, tap.tank.getFluid())) {
+				world.markBlockForUpdate(x, y, z);
+				return true;
 			}
 		}
-		
 		return false;
 	}
 }
