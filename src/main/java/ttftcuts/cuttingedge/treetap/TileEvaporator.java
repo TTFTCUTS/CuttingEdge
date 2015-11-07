@@ -1,8 +1,5 @@
 package ttftcuts.cuttingedge.treetap;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.TileBasic;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -31,53 +28,55 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 	
     @Override
 	public void updateEntity() {
-    	boolean shouldBurn = this.burnTime > 0;
+    	boolean burningNow = this.burnTime > 0;
     	boolean update = false;
+    	boolean updateBlock = false;
     	
     	if (this.burnTime > 0) {
     		this.burnTime--;
     	}
     	
     	if (!this.worldObj.isRemote) {
-    		if (this.burnTime != 0 || this.stacks[0] != null && this.tank.getFluidAmount() > 0) {
-    			    			
-    			if (this.burnTime == 0 && this.canEvaporate()) {
-    				this.currentItemBurnTime = this.burnTime = TileEntityFurnace.getItemBurnTime(this.stacks[0]);
-    				
-    				if (this.burnTime > 0) {
-    					update = true;
-    					
-    					if (this.stacks[0] != null) {
-    						this.stacks[0].stackSize--;
-    						
-    						if (this.stacks[0].stackSize == 0) {
-    							this.stacks[0] = this.stacks[0].getItem().getContainerItem(this.stacks[0]);
-    						}
-    					}
-    				}
-    			}
-    			
-    			if (this.burnTime > 0 && this.canEvaporate()) {
-    				this.cookTime++;
-    				
-    				if (this.cookTime == 200) {
-    					this.cookTime = 0;
-    					this.evaporate();
-    					update = true;
-    				}
-    			} else {
-    				this.cookTime = 0;
-    			}
-    		}
+			if (this.burnTime == 0 && this.canEvaporate()) {
+				this.currentItemBurnTime = this.burnTime = TileEntityFurnace.getItemBurnTime(this.stacks[0]);
+				
+				if (this.burnTime > 0) {
+					update = true;
+					
+					if (this.stacks[0] != null) {
+						this.stacks[0].stackSize--;
+						
+						if (this.stacks[0].stackSize == 0) {
+							this.stacks[0] = this.stacks[0].getItem().getContainerItem(this.stacks[0]);
+						}
+					}
+				}
+			}
+			
+			if (this.burnTime > 0 && this.canEvaporate()) {
+				this.cookTime++;
+				
+				if (this.cookTime == 200) {
+					this.cookTime = 0;
+					this.evaporate();
+					update = true;
+				}
+			} else {
+				this.cookTime = 0;
+			}
     		
-    		if (shouldBurn != this.burnTime > 0) {
+    		if (burningNow != this.burnTime > 0) {
     			update = true;
     			this.burning = this.burnTime > 0;
+    			updateBlock = true;
     		}
     	}
     	
     	if (update) {
     		this.markDirty();
+    		if (updateBlock) {
+    			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+    		}
     	}
     }
     
@@ -162,7 +161,7 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 
 	@Override
 	public String getInventoryName() {
-		return "container.evaporator";
+		return "container.treetap.evaporator";
 	}
 
 	@Override
@@ -218,7 +217,6 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 		boolean wasburning = this.burning;
 		this.burning = nbt.getBoolean("burning");
 		if (wasburning != this.burning) {
-			CuttingEdge.logger.info("state change to: burning "+this.burning);
 			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 		
@@ -259,7 +257,7 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 	
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
-		if(this.canFill(from, resource.getFluid())) {
+		if(resource != null && this.canFill(from, resource.getFluid())) {
 			int l = this.tank.fill(resource, doFill);
 			if (l > 0) {
 				this.markDirty();

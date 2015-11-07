@@ -4,12 +4,18 @@ import static net.minecraftforge.common.util.ForgeDirection.EAST;
 import static net.minecraftforge.common.util.ForgeDirection.NORTH;
 import static net.minecraftforge.common.util.ForgeDirection.SOUTH;
 import static net.minecraftforge.common.util.ForgeDirection.WEST;
+
+import java.util.List;
+
 import ttftcuts.cuttingedge.util.FluidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -18,7 +24,7 @@ public class BlockTreetap extends BlockContainer {
 	public BlockTreetap() {
 		super(Material.cloth);
 		this.setStepSound(soundTypeCloth);
-		this.setBlockName("treetap");
+		this.setBlockName("treetap.treetap");
 		this.setHardness(1.0F);
 	}
 
@@ -97,4 +103,38 @@ public class BlockTreetap extends BlockContainer {
 		}
 		return false;
 	}
+	
+	@Override
+    public int getRenderType() {
+    	return RenderTreetap.renderId;
+    }
+    
+    @Override
+    public boolean isOpaqueCube() {
+    	return false;
+    }
+    
+    @Override
+    public boolean renderAsNormalBlock() {
+    	return false;
+    }
+    
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
+    {
+    	int meta = world.getBlockMetadata(x, y, z);
+    	ForgeDirection dir = ForgeDirection.getOrientation(meta);
+    	double p = 1/16.0;
+    	
+    	double f = 3.5;
+    	double s = 2;
+    	
+    	float minx = (float)( 0 - ((dir.offsetX == 0) ? -s*p : (f*p*Math.min(0, dir.offsetX))) );
+    	float maxx = (float)( 1.0 - ((dir.offsetX == 0) ? s*p : (f*p*Math.max(0, dir.offsetX))) );
+    	
+    	float minz = (float)( 0 - ((dir.offsetZ == 0) ? -s*p : (f*p*Math.min(0, dir.offsetZ))) );
+    	float maxz = (float)( 1.0 - ((dir.offsetZ == 0) ? s*p : (f*p*Math.max(0, dir.offsetZ))) );
+    	
+    	this.setBlockBounds(minx, 0, minz, maxx, (float)(1 - 3*p), maxz);
+    }
 }

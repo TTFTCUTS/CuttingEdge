@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,6 +13,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -75,6 +77,17 @@ public class ModuleTreetap extends Module {
 	@Override
 	public void init(FMLInitializationEvent event) {
 		uiEvaporator = GUIUtil.registerUI(GuiEvaporator.class, ContainerEvaporator.class);
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(
+			new ItemStack(evapblock),
+			"CBC",
+			"C C",
+			"SFS",
+			'C', new ItemStack(Blocks.hardened_clay),
+			'B', new ItemStack(Items.bucket),
+			'S', "cobblestone",
+			'F', new ItemStack(Blocks.furnace)
+		));
 	}
 
 	@Override

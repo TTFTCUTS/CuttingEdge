@@ -11,12 +11,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
 public class ContainerEvaporator extends Container {
 	private TileEvaporator evap;
     private int lastCookTime;
     private int lastBurnTime;
     private int lastItemBurnTime;
+    private int lastFluidLevel;
+    private int lastFluidId;
 	
 	public ContainerEvaporator(EntityPlayer player, TileEntity te) {
 		this.evap = (TileEvaporator)te;
@@ -51,6 +55,8 @@ public class ContainerEvaporator extends Container {
         icrafting.sendProgressBarUpdate(this, 0, this.evap.cookTime);
         icrafting.sendProgressBarUpdate(this, 1, this.evap.burnTime);
         icrafting.sendProgressBarUpdate(this, 2, this.evap.currentItemBurnTime);
+        icrafting.sendProgressBarUpdate(this, 3, this.evap.tank.getFluid() != null ? this.evap.tank.getFluid().getFluidID() : -1);
+        icrafting.sendProgressBarUpdate(this, 4, this.evap.tank.getFluidAmount());
     }
 
     /**
@@ -60,6 +66,8 @@ public class ContainerEvaporator extends Container {
     {
         super.detectAndSendChanges();
 
+        int fluidId = this.evap.tank.getFluid() != null ? this.evap.tank.getFluid().getFluidID() : -1;
+        
         for (int i = 0; i < this.crafters.size(); ++i)
         {
             ICrafting icrafting = (ICrafting)this.crafters.get(i);
@@ -78,11 +86,21 @@ public class ContainerEvaporator extends Container {
             {
                 icrafting.sendProgressBarUpdate(this, 2, this.evap.currentItemBurnTime);
             }
+            
+            if (this.lastFluidId != fluidId) {
+            	icrafting.sendProgressBarUpdate(this, 3, fluidId);
+            }
+            
+            if (this.lastFluidLevel != this.evap.tank.getFluidAmount()) {
+            	icrafting.sendProgressBarUpdate(this, 4, this.evap.tank.getFluidAmount());
+            }
         }
 
         this.lastCookTime = this.evap.cookTime;
         this.lastBurnTime = this.evap.burnTime;
         this.lastItemBurnTime = this.evap.currentItemBurnTime;
+        this.lastFluidLevel = this.evap.tank.getFluidAmount();
+        this.lastFluidId = fluidId;
     }
 
     @SideOnly(Side.CLIENT)
@@ -101,6 +119,28 @@ public class ContainerEvaporator extends Container {
         if (id == 2)
         {
             this.evap.currentItemBurnTime = progress;
+        }
+        
+        if (id == 3) {
+        	if (this.evap.tank.getFluid() == null) {
+        		if (progress != -1) {
+        			FluidStack fluid = new FluidStack(FluidRegistry.getFluid(progress), this.evap.tank.getFluidAmount());
+            		this.evap.tank.setFluid(fluid);
+        		}
+        	} else {
+        		if (progress == -1) {
+        			this.evap.tank.setFluid(null);
+        		} else if (progress != this.evap.tank.getFluid().getFluid().getID()) {
+        			FluidStack fluid = new FluidStack(FluidRegistry.getFluid(progress), this.evap.tank.getFluidAmount());
+        			this.evap.tank.setFluid(fluid);
+        		}
+        	}
+        }
+        
+        if (id == 4) {
+        	if (this.evap.tank.getFluid() != null) {
+        		this.evap.tank.getFluid().amount = progress;
+        	}
         }
     }
 

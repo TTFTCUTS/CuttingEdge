@@ -9,7 +9,7 @@ public class ItemSapBucket extends Item {
 	public ItemSapBucket() {
 		this.setMaxStackSize(1);
 		this.setTextureName("cuttingedge:treetap/sapbucket");
-		this.setUnlocalizedName("sapbucket");
+		this.setUnlocalizedName("treetap.sapbucket");
 	}
 	
 	@Override

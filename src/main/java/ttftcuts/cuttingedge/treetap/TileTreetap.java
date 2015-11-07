@@ -1,5 +1,6 @@
 package ttftcuts.cuttingedge.treetap;
 
+import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.TileBasic;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -119,6 +120,7 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 		this.readTank(nbt);	
 		this.direction = ForgeDirection.getOrientation(nbt.getInteger("dir"));
 		this.fill = nbt.getDouble("fill");
+		this.rate = nbt.getDouble("rate");
 	}
 
 	@Override
@@ -126,6 +128,7 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 		this.writeTank(nbt, false);		
 		nbt.setInteger("dir", this.direction.ordinal());
 		nbt.setDouble("fill", this.fill);
+		nbt.setDouble("rate", this.rate);
 	}
 	
 	public void readTank(NBTTagCompound nbt)
@@ -167,6 +170,7 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 			} else {
 				break;
 			}
+			y++;
 		}
 		
 		for (int i=0; i<tree.canopyHeight; i++) {
@@ -177,10 +181,13 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 					}
 				}
 			}
+			y++;
 		}
 		
 		this.rate = leaves * tree.rate;
 		
 		this.checktimer = checkinterval;
+		
+		CuttingEdge.logger.info("Rate update: "+leaves+" leaves -> "+this.rate);
 	}
 }

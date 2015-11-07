@@ -1,3 +1,10 @@
 item.portacart.name=Compact Collapsible PortaCart
 item.portacart.desc=Bauble: Equipped in the belt slot.
 item.portacart.desc2=Crouch-right-click tracks to deploy.
+
+item.treetap.sapbucket.name=Rubber Sap Bucket
+tile.treetap.treetap.name=Tree Tapping Kit
+tile.treetap.evaporator.name=Evaporator
+container.treetap.evaporator=Evaporator
+fluid.rubbersap=Rubber Sap
+gui.treetap.empty=Empty
