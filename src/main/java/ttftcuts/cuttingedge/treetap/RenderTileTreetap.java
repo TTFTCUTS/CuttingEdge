@@ -13,7 +13,6 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
 
 public class RenderTileTreetap extends TileEntitySpecialRenderer {
 
@@ -66,27 +65,23 @@ public class RenderTileTreetap extends TileEntitySpecialRenderer {
 				
 				double p = 1/16.0;
 				double uf = flowing.getMaxU() - flowing.getMinU();
-				double vf = flowing.getMaxV() - flowing.getMinV();
+				//double vf = flowing.getMaxV() - flowing.getMinV();
 				double us = still.getMaxU() - still.getMinU();
 				double vs = still.getMaxV() - still.getMinV();
 				
 				double u1 = flowing.getMinU() + p*7*uf;
 				double u2 = flowing.getMinU() + p*8*uf;
 				
-				if (tap.rate > 0) {
-					tes.startDrawingQuads();
-					tes.setNormal(tap.direction.offsetX, 0, tap.direction.offsetZ);
-					tes.addVertexWithUV(-p*0.5, 0.5+p*3, 0.5-p*1.1, u1, flowing.getMinV());
-					tes.addVertexWithUV(-p*0.5, 0.5+p*15, 0.5-p*1.1, u1, flowing.getMaxV());
-					tes.addVertexWithUV(p*0.5, 0.5+p*15, 0.5-p*1.1, u2, flowing.getMaxV());
-					tes.addVertexWithUV(p*0.5, 0.5+p*3, 0.5-p*1.1, u2, flowing.getMinV());
-					tes.draw();
-				}
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				
+				double height = 4*p;
+				double fill = 0;
 				
 				if (tap.tank.getFluid() != null) {
-					double fill = tap.tank.getFluidAmount() / (double)tap.tank.getCapacity();
+					fill = tap.tank.getFluidAmount() / (double)tap.tank.getCapacity();
 					
-					double height = (11*(1-fill) + 4) * p;
+					height = (11*(1-fill) + 4) * p;
 					double len = ((1-fill) + 4) * p;
 					
 					tes.startDrawingQuads();
@@ -97,6 +92,22 @@ public class RenderTileTreetap extends TileEntitySpecialRenderer {
 					tes.addVertexWithUV(0.5 - 3*p, 0.5 + height, 0.5 - 1*p, still.getMinU() + 13*p*us, still.getMinV() + 15*p*vs);
 					tes.draw();
 				}
+				
+				if (tap.rate > 0) {
+					int maxleaves = (tree.maxHeight + tree.canopyHeight) * (tree.radius*2+1) * (tree.radius*2+1) - tree.maxHeight;
+					double m = tree.rate * maxleaves * 0.5;
+					double width = Math.min(m, tap.rate)/m;
+					
+					tes.startDrawingQuads();
+					tes.setNormal(tap.direction.offsetX, 0, tap.direction.offsetZ);
+					tes.addVertexWithUV(-p*0.5*width, 0.5+p*3, 0.5-p*1.1, u1 + (1-width)*p*uf*0.5, flowing.getMinV());
+					tes.addVertexWithUV(-p*0.5*width, 0.5+p*15, 0.5-p*1.1, u1 + (1-width)*p*uf*0.5, flowing.getMaxV());
+					tes.addVertexWithUV(p*0.5*width, 0.5+p*15, 0.5-p*1.1, u2 - (1-width)*p*uf*0.5, flowing.getMaxV());
+					tes.addVertexWithUV(p*0.5*width, 0.5+p*3, 0.5-p*1.1, u2 - (1-width)*p*uf*0.5, flowing.getMinV());
+					tes.draw();
+				}
+				
+				GL11.glDisable(GL11.GL_BLEND);
 			}
 		}
 		GL11.glPopMatrix();

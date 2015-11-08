@@ -8,8 +8,12 @@ public class TreetapEvents {
 	@SubscribeEvent
 	public void onTextureStitch(TextureStitchEvent event) {
 		if (event.map.getTextureType() == 0) {
-			if (ModuleTreetap.oursap) {
+			if (ModuleTreetap.ourrubbersap) {
 				ModuleTreetap.rubbersap.setIcons(event.map.registerIcon("cuttingedge:treetap/sapstill"),event.map.registerIcon("cuttingedge:treetap/sapflowing"));
+			}
+			
+			if (ModuleTreetap.ourmaplesap) {
+				ModuleTreetap.maplesap.setIcons(event.map.registerIcon("cuttingedge:treetap/maplestill"),event.map.registerIcon("cuttingedge:treetap/mapleflowing"));
 			}
 		}
 	}

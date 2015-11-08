@@ -1,5 +1,7 @@
 package ttftcuts.cuttingedge.portacart;
 
+import java.util.List;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -8,6 +10,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -88,4 +91,7 @@ public class ModulePortacart extends Module {
 	public void postInit(FMLPostInitializationEvent event) {
 		
 	}
+
+	@Override
+	public void handleIMC(List<IMCMessage> messages) {}
 }

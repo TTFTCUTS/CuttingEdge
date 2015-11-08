@@ -1,7 +1,10 @@
 package ttftcuts.cuttingedge;
 
+import java.util.List;
+
 import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
@@ -19,6 +22,8 @@ public abstract class Module {
 	}
 	
 	public abstract void configure(Configuration config);
+	
+	public abstract void handleIMC(List<FMLInterModComms.IMCMessage> messages);
 	
 	public abstract void preInit(FMLPreInitializationEvent event);
 	

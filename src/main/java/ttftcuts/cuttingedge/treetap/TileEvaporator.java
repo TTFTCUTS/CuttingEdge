@@ -1,12 +1,19 @@
 package ttftcuts.cuttingedge.treetap;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.TileBasic;
+import ttftcuts.cuttingedge.util.IGuiTile;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -14,7 +21,7 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
-public class TileEvaporator extends TileBasic implements ISidedInventory, IFluidHandler {
+public class TileEvaporator extends TileBasic implements ISidedInventory, IFluidHandler, IGuiTile {
 	protected static int[] outstacks = new int[] {1};
 	protected static int[] fuelstacks = new int[] {0};
 	protected ItemStack[] stacks = new ItemStack[2];
@@ -64,15 +71,16 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 			} else {
 				this.cookTime = 0;
 			}
-    		
-    		if (burningNow != this.burnTime > 0) {
-    			update = true;
-    			this.burning = this.burnTime > 0;
-    			updateBlock = true;
-    		}
+			
+			if (burningNow != this.burnTime > 0) {
+				update = true;
+				this.burning = this.burnTime > 0;
+				updateBlock = true;
+			}
     	}
-    	
+
     	if (update) {
+    		CuttingEdge.logger.info("send");
     		this.markDirty();
     		if (updateBlock) {
     			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -211,16 +219,21 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 		this.stacks[1] = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("out"));
 		
 		this.burnTime = nbt.getInteger("burn");
+
 		this.cookTime = nbt.getInteger("cook");
 		this.currentItemBurnTime = nbt.getInteger("cibt");
 		
 		boolean wasburning = this.burning;
 		this.burning = nbt.getBoolean("burning");
 		if (wasburning != this.burning) {
-			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			this.worldObj.updateLightByType(EnumSkyBlock.Block, xCoord, yCoord, zCoord);
 		}
-		
+
 		this.readTank(nbt);
+		
+		CuttingEdge.logger.info("receive: "+this.burnTime);
+		
+		this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 
 	@Override
@@ -341,4 +354,15 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
         	this.tank.drain(evap.fluid.amount, true);
     	}
     }
+
+	@Override
+	public Container getContainer(EntityPlayer player) {
+		return new ContainerEvaporator(player, this);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public GuiContainer getGui(EntityPlayer player) {
+		return new GuiEvaporator(player, this);
+	}
 }

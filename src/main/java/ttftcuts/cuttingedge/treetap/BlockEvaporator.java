@@ -235,6 +235,7 @@ public class BlockEvaporator extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta)
     {
+    	meta = meta % 6;
         return side == 0 ? this.bottomIcon : side == 1 ? this.topIcon : (side == meta || meta == 0 && side == 3 ? this.frontIconUnlit : this.blockIcon);
     }
 
@@ -247,5 +248,15 @@ public class BlockEvaporator extends BlockContainer {
         this.frontIconLit = register.registerIcon("cuttingedge:treetap/evap_front_on");
         this.topIcon = register.registerIcon("cuttingedge:treetap/evap_top");
         this.bottomIcon = register.registerIcon("cuttingedge:treetap/evap_bottom");
+    }
+    
+    @Override
+    public int getLightValue(IBlockAccess world, int x, int y, int z)
+    {
+    	TileEvaporator evap = (TileEvaporator)world.getTileEntity(x, y, z);
+    	if (evap != null) {
+    		return evap.burning ? 13 : 0;
+    	}
+        return super.getLightValue(world, x, y, z);
     }
 }

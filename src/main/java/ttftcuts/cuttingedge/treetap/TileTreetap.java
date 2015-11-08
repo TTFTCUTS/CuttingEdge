@@ -1,7 +1,7 @@
 package ttftcuts.cuttingedge.treetap;
 
-import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.TileBasic;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -20,6 +20,8 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 	public double rate = 0.0;
 	public int checktimer = 0;
 	public static final int checkinterval = 300;
+	
+	private static final ForgeDirection[] cardinals = {ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.EAST, ForgeDirection.WEST};
 	
 	public TileTreetap(){}
 	
@@ -153,13 +155,57 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 		int z = this.zCoord - this.direction.offsetZ;
 		
 		TreeType tree = BlockTreetap.getTappable(worldObj, x,y,z);
-		
-		y++;
-		
-		int leaves = 0;
-		
-		for (int i=0; i<tree.maxHeight; i++) {
-			if (tree.isTrunk(worldObj, x, y, z)) {
+
+		if (tree != null) {
+			int taps = 0;
+			int leaves = 0;
+			
+			// tap check
+			for (int i=0; i<=tree.maxHeight; i++) {
+				if (tree.isTrunk(worldObj, x, y+i, z)) {
+					for (ForgeDirection dir : cardinals) {
+						Block b = this.worldObj.getBlock(x + dir.offsetX, y+i, z + dir.offsetZ);
+						if (b instanceof BlockTreetap) {
+							taps++;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+			
+			for (int i=0; i<=tree.maxHeight; i++) {
+				if (tree.isTrunk(worldObj, x, y-(i+1), z)) {
+					for (ForgeDirection dir : cardinals) {
+						Block b = this.worldObj.getBlock(x + dir.offsetX, y-(i+1), z + dir.offsetZ);
+						if (b instanceof BlockTreetap) {
+							taps++;
+						}
+					}
+				} else {
+					break;
+				}
+			}
+			
+			// leaves
+			y++;
+			
+			for (int i=0; i<tree.maxHeight; i++) {
+				if (tree.isTrunk(worldObj, x, y, z)) {
+					for (int ox = -tree.radius; ox<= tree.radius; ox++) {
+						for (int oz = -tree.radius; oz<= tree.radius; oz++) {
+							if (tree.isLeaves(worldObj, x+ox, y, z+oz)) {
+								leaves++;
+							}
+						}
+					}
+				} else {
+					break;
+				}
+				y++;
+			}
+			
+			for (int i=0; i<tree.canopyHeight; i++) {
 				for (int ox = -tree.radius; ox<= tree.radius; ox++) {
 					for (int oz = -tree.radius; oz<= tree.radius; oz++) {
 						if (tree.isLeaves(worldObj, x+ox, y, z+oz)) {
@@ -167,27 +213,14 @@ public class TileTreetap extends TileBasic implements IFluidHandler {
 						}
 					}
 				}
-			} else {
-				break;
+				y++;
 			}
-			y++;
+			
+			this.rate = ((leaves * tree.rate) / Math.max(1,taps)) * ModuleTreetap.globalTapRate;
 		}
-		
-		for (int i=0; i<tree.canopyHeight; i++) {
-			for (int ox = -tree.radius; ox<= tree.radius; ox++) {
-				for (int oz = -tree.radius; oz<= tree.radius; oz++) {
-					if (tree.isLeaves(worldObj, x+ox, y, z+oz)) {
-						leaves++;
-					}
-				}
-			}
-			y++;
-		}
-		
-		this.rate = leaves * tree.rate;
 		
 		this.checktimer = checkinterval;
 		
-		CuttingEdge.logger.info("Rate update: "+leaves+" leaves -> "+this.rate);
+		//CuttingEdge.logger.info("Rate update: "+taps+" taps, "+leaves+" leaves -> "+this.rate);
 	}
 }

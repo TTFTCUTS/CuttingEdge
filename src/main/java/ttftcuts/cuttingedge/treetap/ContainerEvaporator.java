@@ -1,5 +1,6 @@
 package ttftcuts.cuttingedge.treetap;
 
+import ttftcuts.cuttingedge.CuttingEdge;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
@@ -114,6 +115,7 @@ public class ContainerEvaporator extends Container {
         if (id == 1)
         {
             this.evap.burnTime = progress;
+            CuttingEdge.logger.info(progress);
         }
 
         if (id == 2)

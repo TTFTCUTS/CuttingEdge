@@ -5,13 +5,10 @@ import static net.minecraftforge.common.util.ForgeDirection.NORTH;
 import static net.minecraftforge.common.util.ForgeDirection.SOUTH;
 import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
-import java.util.List;
-
 import ttftcuts.cuttingedge.util.FluidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -20,12 +17,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockTreetap extends BlockContainer {
-	
 	public BlockTreetap() {
 		super(Material.cloth);
 		this.setStepSound(soundTypeCloth);
 		this.setBlockName("treetap.treetap");
 		this.setHardness(1.0F);
+		this.setBlockTextureName("cuttingedge:treetap/treetapicon");
 	}
 
 	@Override
@@ -40,6 +37,8 @@ public class BlockTreetap extends BlockContainer {
         boolean solid = world.isSideSolid(x - dir.offsetX, y, z - dir.offsetZ, dir);
         TreeType tree = getTappable(world, x - dir.offsetX, y, z - dir.offsetZ);
 		
+        //CuttingEdge.logger.info("solid: "+solid+", tree: "+(tree != null)+", canPlace: "+this.canPlaceBlockAt(world, x, y, z));
+        
         return tree != null && solid && this.canPlaceBlockAt(world, x, y, z);
     }
 	
@@ -136,5 +135,12 @@ public class BlockTreetap extends BlockContainer {
     	float maxz = (float)( 1.0 - ((dir.offsetZ == 0) ? s*p : (f*p*Math.max(0, dir.offsetZ))) );
     	
     	this.setBlockBounds(minx, 0, minz, maxx, (float)(1 - 3*p), maxz);
+    }
+    
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
+    {
+        this.setBlockBoundsBasedOnState(world, x, y, z);
+        return super.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
 }
