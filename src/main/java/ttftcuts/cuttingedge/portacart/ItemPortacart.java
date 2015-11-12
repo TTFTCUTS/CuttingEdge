@@ -31,6 +31,8 @@ public class ItemPortacart extends Item implements IBauble {
         {
             if (!world.isRemote)
             {
+            	player.setSneaking(false);
+            	
             	EntityMinecart entityminecart = new EntityPortacart(world, x+0.5, y+0.5, z+0.5);
 
                 world.spawnEntityInWorld(entityminecart);

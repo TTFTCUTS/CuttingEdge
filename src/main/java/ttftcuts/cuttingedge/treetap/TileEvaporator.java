@@ -2,7 +2,6 @@ package ttftcuts.cuttingedge.treetap;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.TileBasic;
 import ttftcuts.cuttingedge.util.IGuiTile;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -80,7 +79,7 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
     	}
 
     	if (update) {
-    		CuttingEdge.logger.info("send");
+    		//CuttingEdge.logger.info("send");
     		this.markDirty();
     		if (updateBlock) {
     			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -225,15 +224,17 @@ public class TileEvaporator extends TileBasic implements ISidedInventory, IFluid
 		
 		boolean wasburning = this.burning;
 		this.burning = nbt.getBoolean("burning");
-		if (wasburning != this.burning) {
+		if (wasburning != this.burning && this.worldObj != null) {
 			this.worldObj.updateLightByType(EnumSkyBlock.Block, xCoord, yCoord, zCoord);
 		}
 
 		this.readTank(nbt);
 		
-		CuttingEdge.logger.info("receive: "+this.burnTime);
+		//CuttingEdge.logger.info("receive: "+this.burnTime);
 		
-		this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		if (this.worldObj != null) {
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
 	}
 
 	@Override

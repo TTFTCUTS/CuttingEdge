@@ -1,6 +1,5 @@
 package ttftcuts.cuttingedge.treetap;
 
-import ttftcuts.cuttingedge.CuttingEdge;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,7 +8,6 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotFurnace;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -115,7 +113,7 @@ public class ContainerEvaporator extends Container {
         if (id == 1)
         {
             this.evap.burnTime = progress;
-            CuttingEdge.logger.info(progress);
+            //CuttingEdge.logger.info(progress);
         }
 
         if (id == 2)
@@ -159,9 +157,9 @@ public class ContainerEvaporator extends Container {
             ItemStack itemstack1 = slot.getStack();
             itemstack = itemstack1.copy();
 
-            if (slotid == 2)
+            if (slotid == 1)
             {
-                if (!this.mergeItemStack(itemstack1, 3, 39, true))
+                if (!this.mergeItemStack(itemstack1, 2, 38, true))
                 {
                     return null;
                 }
@@ -170,33 +168,26 @@ public class ContainerEvaporator extends Container {
             }
             else if (slotid != 1 && slotid != 0)
             {
-                if (FurnaceRecipes.smelting().getSmeltingResult(itemstack1) != null)
+                if (TileEntityFurnace.isItemFuel(itemstack1))
                 {
                     if (!this.mergeItemStack(itemstack1, 0, 1, false))
                     {
                         return null;
                     }
                 }
-                else if (TileEntityFurnace.isItemFuel(itemstack1))
+                else if (slotid >= 2 && slotid < 29)
                 {
-                    if (!this.mergeItemStack(itemstack1, 1, 2, false))
+                    if (!this.mergeItemStack(itemstack1, 29, 38, false))
                     {
                         return null;
                     }
                 }
-                else if (slotid >= 3 && slotid < 30)
-                {
-                    if (!this.mergeItemStack(itemstack1, 30, 39, false))
-                    {
-                        return null;
-                    }
-                }
-                else if (slotid >= 30 && slotid < 39 && !this.mergeItemStack(itemstack1, 3, 30, false))
+                else if (slotid >= 29 && slotid < 38 && !this.mergeItemStack(itemstack1, 2, 29, false))
                 {
                     return null;
                 }
             }
-            else if (!this.mergeItemStack(itemstack1, 3, 39, false))
+            else if (!this.mergeItemStack(itemstack1, 2, 38, false))
             {
                 return null;
             }
