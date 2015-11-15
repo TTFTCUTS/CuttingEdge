@@ -10,3 +10,5 @@ container.treetap.evaporator=Evaporator
 fluid.rubbersap=Rubber Sap
 fluid.maplesap=Maple Sap
 gui.treetap.empty=Empty
+nei.recipe.evaporator=Evaporator
+nei.recipe.treetap=Tree Tapping

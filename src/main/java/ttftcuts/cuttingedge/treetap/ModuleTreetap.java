@@ -83,6 +83,7 @@ public class ModuleTreetap extends Module {
 		rubbersap = FluidRegistry.getFluid("rubbersap");
 		if (rubbersap == null) {
 			rubbersap = new Fluid("rubbersap");
+			rubbersap.setDensity(920).setViscosity(1200);
 			FluidRegistry.registerFluid(rubbersap);
 			ourrubbersap = true;
 		}
@@ -93,6 +94,7 @@ public class ModuleTreetap extends Module {
 			maplesap = FluidRegistry.getFluid("maplesap");
 			if (maplesap == null) {
 				maplesap = new Fluid("maplesap");
+				maplesap.setDensity(1095).setViscosity(1100);
 				FluidRegistry.registerFluid(maplesap);
 				ourmaplesap = true;
 			}

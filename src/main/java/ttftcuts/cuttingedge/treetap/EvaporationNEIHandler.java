@@ -25,7 +25,7 @@ import codechicken.nei.recipe.GuiRecipe;
 import codechicken.nei.recipe.GuiUsageRecipe;
 import codechicken.nei.recipe.TemplateRecipeHandler;
 
-public class EvaporationHandler extends TemplateRecipeHandler {
+public class EvaporationNEIHandler extends TemplateRecipeHandler {
 
 	public class CachedEvaporationRecipe extends CachedRecipe
 	{
@@ -208,12 +208,12 @@ public class EvaporationHandler extends TemplateRecipeHandler {
 			) {
 				if(button==0)
 				{
-					if(GuiCraftingRecipe.openRecipeGui("liquid", new Object[] { r.input }))
+					if(GuiCraftingRecipe.openRecipeGui("liquid", r.input))
 						return true;
 				}
 				else if(button==1)
 				{
-					if(GuiUsageRecipe.openRecipeGui("liquid", new Object[] { r.input }))
+					if(GuiUsageRecipe.openRecipeGui("liquid", r.input))
 						return true;
 				}
 			}
@@ -237,12 +237,12 @@ public class EvaporationHandler extends TemplateRecipeHandler {
 			) {
 				if(keyCode == NEIClientConfig.getKeyBinding("gui.recipe"))
 				{
-					if(GuiCraftingRecipe.openRecipeGui("liquid", new Object[] { r.input }))
+					if(GuiCraftingRecipe.openRecipeGui("liquid", r.input))
 						return true;
 				}
 				else if(keyCode == NEIClientConfig.getKeyBinding("gui.usage"))
 				{
-					if(GuiUsageRecipe.openRecipeGui("liquid", new Object[] { r.input }))
+					if(GuiUsageRecipe.openRecipeGui("liquid", r.input))
 						return true;
 				}
 			}

@@ -17,9 +17,13 @@ public class NEIConfig implements IConfigureNEI {
 
 	@Override
 	public void loadConfig() {
-		EvaporationHandler evap = new EvaporationHandler();
+		EvaporationNEIHandler evap = new EvaporationNEIHandler();
 		API.registerRecipeHandler(evap);
 		API.registerUsageHandler(evap);
+		
+		TappingNEIHandler tap = new TappingNEIHandler();
+		API.registerRecipeHandler(tap);
+		API.registerUsageHandler(tap);
 	}
 
 }
