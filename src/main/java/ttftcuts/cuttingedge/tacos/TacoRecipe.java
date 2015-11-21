@@ -3,8 +3,6 @@ package ttftcuts.cuttingedge.tacos;
 import java.util.ArrayList;
 import java.util.List;
 
-import ttftcuts.cuttingedge.CuttingEdge;
-
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -17,8 +15,6 @@ public class TacoRecipe implements IRecipe {
 		ItemStack base = null;
 		List<ItemStack> ingredients = new ArrayList<ItemStack>();
 		
-		CuttingEdge.logger.info("taco recipe");
-		
 		for (int i=0; i<grid.getSizeInventory(); i++) {
 			ItemStack stack = grid.getStackInSlot(i);
 			if (stack != null) {
@@ -26,13 +22,11 @@ public class TacoRecipe implements IRecipe {
 				boolean component = TacoComponent.isComponent(stack);
 				
 				if (!(container || component)) {
-					CuttingEdge.logger.info("item not container nor component: "+stack);
 					return false;
 				}
 				
 				if (container) {
 					if (base != null) { 
-						CuttingEdge.logger.info("not allowed two base items");
 						return false; 
 					}
 					base = stack;
@@ -44,7 +38,6 @@ public class TacoRecipe implements IRecipe {
 			}
 		}
 		if (base == null || ingredients.isEmpty() || (ingredients.size() == 1 && ingredients.get(0) == base)) {
-			CuttingEdge.logger.info("no base or no ingredients");
 			return false;
 		}
 		
@@ -54,25 +47,42 @@ public class TacoRecipe implements IRecipe {
 	@Override
 	public ItemStack getCraftingResult(InventoryCrafting grid) {
 		ItemStack base = null;
-		List<ItemStack> ingredients = new ArrayList<ItemStack>();
+		TacoContainer basecontainer = null;
+		List<TacoComponent> ingredients = new ArrayList<TacoComponent>();
 		
 		for (int i=0; i<grid.getSizeInventory(); i++) {
 			ItemStack stack = grid.getStackInSlot(i);
 			if (stack != null) {
-				boolean container = stack.getItem() == ModuleTacos.tacoItem || TacoContainer.isContainer(stack);
-				boolean component = TacoComponent.isComponent(stack);
+				TacoContainer container = TacoContainer.getContainer(stack);
+				TacoComponent component = TacoComponent.getComponent(stack);
 				
-				if (container) {
-					base = stack;
+				if (stack.getItem() == ModuleTacos.tacoItem || container != null) {
+					base = stack.copy();
+					if (container != null) {
+						basecontainer = container;
+					}
 				}
 				
-				if (component) {
-					ingredients.add(stack);
+				if (component != null) {
+					ingredients.add(component);
 				}
 			}
 		}
 		
 		ItemStack output = base.getItem() == ModuleTacos.tacoItem ? base : new ItemStack(ModuleTacos.tacoItem);
+		
+		TacoData data = TacoData.getData(output);
+		if (basecontainer != null) {
+			data.container = basecontainer;
+		}
+		
+		for (TacoComponent comp : ingredients) {
+			if (!data.addComponent(comp)) {
+				return null;
+			}
+		}
+		
+		TacoData.setData(output, data);
 		
 		return output;
 	}

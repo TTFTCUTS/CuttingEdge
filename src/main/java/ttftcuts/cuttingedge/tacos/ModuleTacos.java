@@ -56,7 +56,7 @@ public class ModuleTacos extends Module {
 	public void postInit(FMLPostInitializationEvent event) {
 		TacoContainer.register(new TacoContainer("book", new ItemStack(Items.book))
 			.setCapacity(Shell, 1.0)
-			.setCapacity(Filling, 1.0)
+			.setCapacity(Filling, 2.0)
 			.setCapacity(Sauce, 1.0)
 		);
 		
@@ -64,7 +64,7 @@ public class ModuleTacos extends Module {
 			.addFlavour(Dinner, 1.0)
 		);
 		
-		TacoComponent.register(new TacoComponent("carrot", new ItemStack(Items.carrot), Filling, 0.5)
+		TacoComponent.register(new TacoComponent("carrot", new ItemStack(Items.carrot), Filling, 1.0)
 			.addFlavour(Fresh, 1.0)
 			.addFlavour(Dinner, 0.5)
 		);

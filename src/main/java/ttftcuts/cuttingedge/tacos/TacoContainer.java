@@ -23,13 +23,17 @@ public class TacoContainer {
 		return this;
 	}
 	
-	public static boolean isContainer(ItemStack stack) {
+	public static TacoContainer getContainer(ItemStack stack) {
 		for (TacoContainer c : ModuleTacos.containers.values()) {
 			if (ItemUtil.areStacksEqual(c.stack, stack)) {
-				return true;
+				return c;
 			}
 		}
-		return false;
+		return null;
+	}
+	
+	public static boolean isContainer(ItemStack stack) {
+		return getContainer(stack) != null;
 	}
 	
 	public static void register(TacoContainer container) {
