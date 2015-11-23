@@ -4,9 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.lwjgl.input.Keyboard;
+
+import ttftcuts.cuttingedge.util.GUIUtil;
 import ttftcuts.cuttingedge.util.TextUtil;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
@@ -20,8 +26,13 @@ public class TacoTipHandler {
 	
 	@SubscribeEvent
 	public void onTooltip(ItemTooltipEvent event) {
+		KeyBinding sneak = Minecraft.getMinecraft().gameSettings.keyBindSneak;
+		boolean sneakpressed = GUIUtil.isKeyDown(sneak.getKeyCode());
+		
 		if (event.itemStack.getItem() instanceof ItemTaco) {
 			TacoData data = TacoData.getData(event.itemStack);
+			
+			event.toolTip.add(EnumChatFormatting.ITALIC.toString() + StatCollector.translateToLocal("tacos.tacolicious"));
 			
 			if (data.container == null) {
 				return;
@@ -46,12 +57,7 @@ public class TacoTipHandler {
 				}
 				
 				String list = partlists.get(t);
-				double fill = data.filled.containsKey(t) ? data.filled.get(t) : 0;
-				double capacity = data.container.capacities.containsKey(t) ? data.container.capacities.get(t) : 0;
-				if (capacity > 0 && t.countInTooltip) {
-					list += TextUtil.fraction(fill/capacity).toString()+dmult(fill)+"/"+dmult(capacity)+t.style.toString()+EnumChatFormatting.GRAY +" ";
-				}
-				list += t.name()+":";
+ 				list += t.style + t.display()+EnumChatFormatting.GRAY+":";
 				partlists.put(t, list);
 			}
 
@@ -73,10 +79,102 @@ public class TacoTipHandler {
 					if (out.endsWith(",")) {
 						out = out.substring(0, out.length()-1);
 					}
+					double fill = data.filled.containsKey(ct) ? data.filled.get(ct) : 0;
+					double capacity = data.container.capacities.containsKey(ct) ? data.container.capacities.get(ct) : 0;
+					if (capacity > 0 && ct.countInTooltip) {
+						out += EnumChatFormatting.DARK_GRAY + " ("+dmult(fill)+"/"+dmult(capacity)+")";
+					}
+					
 					event.toolTip.addAll(TextUtil.wrapText(out,130));
 				}
 			}
-			//event.toolTip.add("------");
+
+			if (sneakpressed) {
+				event.toolTip.add(EnumChatFormatting.DARK_GRAY+"-----");
+				
+				Map<EnumFlavour, Double> flavours = new HashMap<EnumFlavour, Double>();
+				
+				for (TacoComponent c : data.components) {
+					for (EnumFlavour f : c.flavours.keySet()) {
+						if (!flavours.containsKey(f)) {
+							flavours.put(f, 0.0);
+						}
+						flavours.put(f, flavours.get(f) + c.flavours.get(f));
+					}
+				}
+				
+				for (EnumFlavour f : EnumFlavour.values()) {
+					if (flavours.containsKey(f)) {
+						double level = flavours.get(f);
+						
+						event.toolTip.add("- "+f.flavourLevel(level));
+					}
+				}
+				
+				event.toolTip.add(EnumChatFormatting.DARK_GRAY+"-----");
+				
+				String hunger = StatCollector.translateToLocal("tacos.hunger") + ": " + EnumChatFormatting.WHITE;
+				double hhams = Math.min(10,data.hunger * 0.5);
+				String sat = StatCollector.translateToLocal("tacos.saturation") + ": " + EnumChatFormatting.WHITE;
+				double shams = Math.min(10,data.saturation * 0.5);
+				for (int i=0; i<Math.floor(hhams); i++) {
+					hunger += (char)0x25A0;
+				}
+				if (hhams % 1 >= 0.5) {
+					hunger += EnumChatFormatting.DARK_GRAY.toString() + (char)0x25A0;
+				}
+				for (int i=0; i<Math.floor(shams); i++) {
+					sat += (char)0x25A0;
+				}
+				if (shams % 1 >= 0.5) {
+					sat += EnumChatFormatting.DARK_GRAY.toString() + (char)0x25A0;
+				}
+				event.toolTip.add(hunger);
+				event.toolTip.add(sat);
+			} else {
+				event.toolTip.add(EnumChatFormatting.DARK_GRAY.toString() + EnumChatFormatting.ITALIC + String.format(StatCollector.translateToLocal("tacos.moreinfo"), Keyboard.getKeyName(sneak.getKeyCode())));
+			}
+		}
+		else {
+			boolean heldContainer = (event.entityPlayer != null && event.entityPlayer.getHeldItem() != null && (event.entityPlayer.getHeldItem().getItem() instanceof ItemTaco || TacoContainer.isContainer(event.entityPlayer.getHeldItem())));
+			TacoContainer container = TacoContainer.getContainer(event.itemStack);
+			TacoComponent component = TacoComponent.getComponent(event.itemStack);
+			boolean showstats = (heldContainer || container != null);
+			
+			if (container != null || (component != null && showstats)) {
+				String tip = EnumChatFormatting.ITALIC.toString() + StatCollector.translateToLocal("tacos.tacolicious");
+				if (!sneakpressed) {
+					tip += " "+EnumChatFormatting.DARK_GRAY.toString() + EnumChatFormatting.ITALIC + String.format(StatCollector.translateToLocal("tacos.moreinfoshort"), Keyboard.getKeyName(sneak.getKeyCode()));
+				}
+				event.toolTip.add(tip);
+			}
+			if (sneakpressed) {
+				if (container != null) {
+					event.toolTip.add(StatCollector.translateToLocal("tacos.canhold"));
+					for (EnumComponentType ct : container.capacities.keySet()) {
+						if (ct.countInTooltip) {
+							event.toolTip.add(ct.style + ct.display() + EnumChatFormatting.GRAY + " x"+dmult(container.capacities.get(ct)));
+						}
+					}
+				}
+				
+				if (component != null && showstats) {
+					if (container != null) {
+						event.toolTip.add(EnumChatFormatting.DARK_GRAY+"-----");
+					}
+					
+					event.toolTip.add(component.type.style + component.type.display() + EnumChatFormatting.GRAY + " "+StatCollector.translateToLocal("tacos.size") + " " + dmult(component.size)+":");
+					
+					
+					for (EnumFlavour f : EnumFlavour.values()) {
+						if (component.flavours.containsKey(f)) {
+							double level = component.flavours.get(f);
+							
+							event.toolTip.add("- "+f.flavourLevel(level));
+						}
+					}
+				}
+			}
 		}
 	}
 }

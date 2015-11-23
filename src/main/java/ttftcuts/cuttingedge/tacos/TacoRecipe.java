@@ -81,6 +81,7 @@ public class TacoRecipe implements IRecipe {
 				return null;
 			}
 		}
+		data.calculateHungerSaturation();
 		
 		TacoData.setData(output, data);
 		

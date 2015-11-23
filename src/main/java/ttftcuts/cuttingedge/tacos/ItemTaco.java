@@ -53,5 +53,14 @@ public class ItemTaco extends ItemFood {
 	public IIcon getIcon(ItemStack stack, int pass) {
 		return super.getIcon(stack, pass);
 	}
+	
+	@Override
+	public String getItemStackDisplayName(ItemStack stack) {
+		TacoData data = TacoData.getData(stack);
+		if (data != null && data.container != null) {
+			return super.getItemStackDisplayName(stack) +": "+data.container.stack.getDisplayName();
+		}
+		return super.getItemStackDisplayName(stack);
+	}
 
 }

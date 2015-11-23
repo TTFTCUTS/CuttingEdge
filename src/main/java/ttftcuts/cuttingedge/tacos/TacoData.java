@@ -14,6 +14,8 @@ public class TacoData {
 	public List<TacoComponent> components;
 	public static final String TACOTAG = "taco";
 	public Map<EnumComponentType, Double> filled;
+	public double hunger = 0;
+	public double saturation = 0;
 	
 	public TacoData() {
 		this.components = new ArrayList<TacoComponent>();
@@ -35,6 +37,9 @@ public class TacoData {
 		}
 		tag.setTag("p", list);
 		
+		tag.setDouble("hng", hunger);
+		tag.setDouble("sat", saturation);
+		
 		return tag;
 	}
 	
@@ -54,6 +59,9 @@ public class TacoData {
 				data.addComponent(ModuleTacos.components.get(id));
 			}
 		}
+		
+		data.hunger = tag.getDouble("hng");
+		data.saturation = tag.getDouble("sat");
 		
 		return data;
 	}
@@ -96,5 +104,37 @@ public class TacoData {
 		}
 		
 		stack.getTagCompound().setTag(TACOTAG, data.writeToNBT());
+	}
+	
+	public void calculateHungerSaturation() {
+		this.hunger = 0;
+		this.saturation = 0;
+		
+		Map<EnumFlavour, Double> flavours = new HashMap<EnumFlavour,Double>();
+		
+		for (TacoComponent c : this.components) {
+			for (EnumFlavour f : c.flavours.keySet()) {
+				if (!flavours.containsKey(f)) {
+					flavours.put(f, 0.0);
+				}
+				flavours.put(f, flavours.get(f) + c.flavours.get(f));
+			}
+		}
+		
+		for (EnumFlavour f : flavours.keySet()) {
+			double af = flavours.get(f);
+			for (EnumFlavour r : flavours.keySet()) {
+				if (f == r) { continue; }
+				double ar = flavours.get(r);
+				double rel = f.getRelation(r);
+				if (rel > 0) {
+					double n = af * rel * ar * 2.5;
+					double h = n * f.hungerMult;
+					double s = n * f.saturationMult;
+					this.hunger += h;
+					this.saturation += s;
+				}
+			}
+		}
 	}
 }
