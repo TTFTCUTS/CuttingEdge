@@ -98,6 +98,7 @@ public enum EnumFlavour {
 	private Map<EnumFlavour,Double> relations;
 	public final double hungerMult;
 	public final double saturationMult;
+	public TasteCurve curve = null;
 	
 	private EnumFlavour(double hunger, double sat) {
 		this.relations = new HashMap<EnumFlavour, Double>();
@@ -124,22 +125,35 @@ public enum EnumFlavour {
 		}
 	}
 	
+	public double getCurve(double level) {
+		TasteCurve c = TasteCurve.basic;
+		if (this.curve != null) {
+			c = this.curve;
+		}
+		return c.calc(level);
+	}
+	
 	public static class TasteCurve {
 		public final double gain;
-		public final int breakpoint;
+		public final double breakpoint;
 		public final double decay;
 		
-		public TasteCurve(double gain, int breakpoint, double decay) {
+		public static final TasteCurve basic = new TasteCurve(1.0,-1,0.0);
+		
+		public TasteCurve(double gain, double breakpoint, double decay) {
 			this.gain = gain;
 			this.breakpoint = breakpoint;
 			this.decay = decay;
 		}
 		
-		public double calc(int level) {
-			int pos = Math.max(level, breakpoint);
-			int neg = Math.max(0, level - breakpoint);
-			
-			return pos * gain + neg * decay;
+		public double calc(double level) {
+			if (breakpoint != -1) {
+				double pos = Math.max(level, breakpoint);
+				double neg = Math.max(0, level - breakpoint);
+				
+				return pos * gain + neg * decay;
+			}
+			return level * gain;
 		}
 	}
 	

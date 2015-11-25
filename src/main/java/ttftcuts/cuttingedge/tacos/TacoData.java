@@ -16,6 +16,7 @@ public class TacoData {
 	public Map<EnumComponentType, Double> filled;
 	public double hunger = 0;
 	public double saturation = 0;
+	public int servings = 0;
 	
 	public TacoData() {
 		this.components = new ArrayList<TacoComponent>();
@@ -39,6 +40,7 @@ public class TacoData {
 		
 		tag.setDouble("hng", hunger);
 		tag.setDouble("sat", saturation);
+		tag.setInteger("srv", servings);
 		
 		return tag;
 	}
@@ -48,7 +50,7 @@ public class TacoData {
 		
 		String cont = tag.getString("s");
 		if (ModuleTacos.containers.containsKey(cont)) {
-			data.container = ModuleTacos.containers.get(cont);
+			data.setContainer(ModuleTacos.containers.get(cont));
 		}
 		
 		NBTTagList list = tag.getTagList("p", 10);
@@ -62,6 +64,7 @@ public class TacoData {
 		
 		data.hunger = tag.getDouble("hng");
 		data.saturation = tag.getDouble("sat");
+		data.servings = tag.getInteger("srv");
 		
 		return data;
 	}
@@ -78,6 +81,11 @@ public class TacoData {
 		this.components.add(comp);
 		this.filled.put(comp.type, fill + comp.size);
 		return true;
+	}
+	
+	public void setContainer(TacoContainer container) {
+		this.container = container;
+		this.servings = container.size;
 	}
 	
 	public static TacoData getData(ItemStack stack) {
@@ -110,6 +118,8 @@ public class TacoData {
 		this.hunger = 0;
 		this.saturation = 0;
 		
+		if (this.container == null) { return; }
+		
 		Map<EnumFlavour, Double> flavours = new HashMap<EnumFlavour,Double>();
 		
 		for (TacoComponent c : this.components) {
@@ -123,12 +133,14 @@ public class TacoData {
 		
 		for (EnumFlavour f : flavours.keySet()) {
 			double af = flavours.get(f);
+			this.hunger += f.getCurve(af) * f.hungerMult;
+			this.saturation += f.getCurve(af) * f.saturationMult;
 			for (EnumFlavour r : flavours.keySet()) {
 				if (f == r) { continue; }
 				double ar = flavours.get(r);
 				double rel = f.getRelation(r);
 				if (rel > 0) {
-					double n = af * rel * ar * 2.5;
+					double n = af * rel * ar;
 					double h = n * f.hungerMult;
 					double s = n * f.saturationMult;
 					this.hunger += h;
@@ -136,5 +148,8 @@ public class TacoData {
 				}
 			}
 		}
+		
+		this.hunger /= this.container.size;
+		this.saturation /= this.container.size;
 	}
 }

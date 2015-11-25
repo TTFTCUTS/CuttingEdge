@@ -73,7 +73,7 @@ public class TacoRecipe implements IRecipe {
 		
 		TacoData data = TacoData.getData(output);
 		if (basecontainer != null) {
-			data.container = basecontainer;
+			data.setContainer(basecontainer);
 		}
 		
 		for (TacoComponent comp : ingredients) {

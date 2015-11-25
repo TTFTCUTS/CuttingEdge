@@ -123,14 +123,28 @@ public class TacoTipHandler {
 				if (hhams % 1 >= 0.5) {
 					hunger += EnumChatFormatting.DARK_GRAY.toString() + (char)0x25A0;
 				}
+				if (data.hunger > 20) {
+					hunger += EnumChatFormatting.GRAY + "+ ("+((int)Math.floor(data.hunger*0.5)) + ")";
+				}
 				for (int i=0; i<Math.floor(shams); i++) {
 					sat += (char)0x25A0;
 				}
 				if (shams % 1 >= 0.5) {
 					sat += EnumChatFormatting.DARK_GRAY.toString() + (char)0x25A0;
 				}
+				if (data.saturation > 20) {
+					sat += EnumChatFormatting.GRAY + "+ ("+((int)Math.floor(data.saturation*0.5)) + ")";
+				}
+				
 				event.toolTip.add(hunger);
 				event.toolTip.add(sat);
+				
+				if (data.container.size > 1) {
+					event.toolTip.add(String.format(StatCollector.translateToLocal("tacos.servings"), data.servings, data.container.size));
+					if (event.itemStack.stackSize > 1) {
+						event.toolTip.add(EnumChatFormatting.RED+StatCollector.translateToLocal("tacos.stackwarning"));
+					}
+				}
 			} else {
 				event.toolTip.add(EnumChatFormatting.DARK_GRAY.toString() + EnumChatFormatting.ITALIC + String.format(StatCollector.translateToLocal("tacos.moreinfo"), Keyboard.getKeyName(sneak.getKeyCode())));
 			}
@@ -156,6 +170,10 @@ public class TacoTipHandler {
 							event.toolTip.add(ct.style + ct.display() + EnumChatFormatting.GRAY + " x"+dmult(container.capacities.get(ct)));
 						}
 					}
+					
+					if (container.size > 1) {
+						event.toolTip.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("tacos.servingsshell"));
+					}
 				}
 				
 				if (component != null && showstats) {
@@ -164,7 +182,6 @@ public class TacoTipHandler {
 					}
 					
 					event.toolTip.add(component.type.style + component.type.display() + EnumChatFormatting.GRAY + " "+StatCollector.translateToLocal("tacos.size") + " " + dmult(component.size)+":");
-					
 					
 					for (EnumFlavour f : EnumFlavour.values()) {
 						if (component.flavours.containsKey(f)) {

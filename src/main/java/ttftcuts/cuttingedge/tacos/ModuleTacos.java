@@ -54,13 +54,21 @@ public class ModuleTacos extends Module {
 
 	@Override
 	public void postInit(FMLPostInitializationEvent event) {
-		TacoContainer.register(new TacoContainer("book", new ItemStack(Items.book))
+		TacoContainer.register(new TacoContainer("book", new ItemStack(Items.book), 1)
 			.setCapacity(Shell, 1.0)
 			.setCapacity(Filling, 2.0)
 			.setCapacity(Sauce, 1.0)
 		);
-		
 		TacoComponent.register(new TacoComponent("book", new ItemStack(Items.book), Shell, 1.0)
+			.addFlavour(Dinner, 1.0)
+		);
+		
+		TacoContainer.register(new TacoContainer("boat", new ItemStack(Items.boat), 50)
+			.setCapacity(Shell, 50.0)
+			.setCapacity(Filling, 100.0)
+			.setCapacity(Sauce, 50.0)
+		);
+		TacoComponent.register(new TacoComponent("boat", new ItemStack(Items.boat), Shell, 50.0)
 			.addFlavour(Dinner, 1.0)
 		);
 		

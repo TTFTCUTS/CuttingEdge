@@ -11,11 +11,13 @@ public class TacoContainer {
 	public final String name;
 	public ItemStack stack;
 	public Map<EnumComponentType, Double> capacities;
+	public final int size;
 	
-	public TacoContainer(String name, ItemStack stack) {
+	public TacoContainer(String name, ItemStack stack, int size) {
 		this.capacities = new HashMap<EnumComponentType, Double>();
 		this.name = name;
 		this.stack = stack;
+		this.size = size;
 	}
 	
 	public TacoContainer setCapacity(EnumComponentType comp, Double amount) {

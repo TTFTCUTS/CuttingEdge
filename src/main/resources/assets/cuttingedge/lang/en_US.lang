@@ -34,3 +34,7 @@ tacos.flavtype.dinner=Dinner
 tacos.flavtype.dessert=Dessert
 tacos.hunger=Hunger
 tacos.saturation=Saturation
+tacos.big=Too big for one bite!
+tacos.servings=%s/%s servings left
+tacos.servingsshell=Multiple servings
+tacos.stackwarning=Cannot eat large tacos while stacked!

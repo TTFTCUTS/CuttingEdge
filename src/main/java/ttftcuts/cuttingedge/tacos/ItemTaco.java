@@ -24,17 +24,29 @@ public class ItemTaco extends ItemFood {
 	// get hunger restored
 	@Override
 	public int func_150905_g(ItemStack stack) {
+		TacoData data = TacoData.getData(stack);
+		if (data != null) {
+			return (int)Math.floor(data.hunger);
+		}
 		return 0;
 	}
 
 	// get saturation restored
 	@Override
 	public float func_150906_h(ItemStack stack) {
+		TacoData data = TacoData.getData(stack);
+		if (data != null) {
+			return (int)Math.floor(data.saturation);
+		}
 		return 0;
 	}
 	
 	@Override
 	public EnumRarity getRarity(ItemStack stack) {
+		TacoData data = TacoData.getData(stack);
+		if (data != null && data.container != null) {
+			return data.container.stack.getRarity();
+		}
 		return super.getRarity(stack);
 	}
 	
