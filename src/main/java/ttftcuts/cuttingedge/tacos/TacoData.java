@@ -137,10 +137,9 @@ public class TacoData {
 			this.saturation += f.getCurve(af) * f.saturationMult;
 			for (EnumFlavour r : flavours.keySet()) {
 				if (f == r) { continue; }
-				double ar = flavours.get(r);
 				double rel = f.getRelation(r);
 				if (rel > 0) {
-					double n = af * rel * ar;
+					double n = af * rel;
 					double h = n * f.hungerMult;
 					double s = n * f.saturationMult;
 					this.hunger += h;

@@ -62,7 +62,7 @@ public class TacoTipHandler {
 			}
 
 			for (TacoComponent comp : parts.keySet()) {
-				String tip = comp.stack.getItem().getRarity(comp.stack).rarityColor + comp.stack.getDisplayName() + EnumChatFormatting.GRAY;
+				String tip = comp.stacks.get(0).getItem().getRarity(comp.stacks.get(0)).rarityColor + comp.stacks.get(0).getDisplayName() + EnumChatFormatting.GRAY;
 				int amount = parts.get(comp);
 				if (amount > 1) {
 					tip += " x"+amount;

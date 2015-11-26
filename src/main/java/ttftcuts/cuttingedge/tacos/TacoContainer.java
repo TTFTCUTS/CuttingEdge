@@ -21,7 +21,7 @@ public class TacoContainer {
 	}
 	
 	public TacoContainer setCapacity(EnumComponentType comp, Double amount) {
-		this.capacities.put(comp, amount);
+		this.capacities.put(comp, amount * this.size);
 		return this;
 	}
 	
