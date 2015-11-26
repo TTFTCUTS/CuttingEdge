@@ -9,6 +9,8 @@ public enum EnumComponentType {
 	Sauce(EnumChatFormatting.RED),
 	;
 	
+	public static final int rendercount = 3;
+	
 	public final EnumChatFormatting style;
 	public final boolean countInTooltip;
 	

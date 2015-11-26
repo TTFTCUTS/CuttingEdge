@@ -1,9 +1,14 @@
 package ttftcuts.cuttingedge.tacos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import ttftcuts.cuttingedge.CuttingEdge;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +22,7 @@ public class TacoData {
 	public double hunger = 0;
 	public double saturation = 0;
 	public int servings = 0;
+	public List<TacoComponent> iconComponents = new ArrayList<TacoComponent>();
 	
 	public TacoData() {
 		this.components = new ArrayList<TacoComponent>();
@@ -42,6 +48,14 @@ public class TacoData {
 		tag.setDouble("sat", saturation);
 		tag.setInteger("srv", servings);
 		
+		NBTTagList rlist = new NBTTagList();
+		for (TacoComponent comp : iconComponents) {
+			NBTTagCompound part = new NBTTagCompound();
+			part.setString("id", comp.name);
+			rlist.appendTag(part);
+		}
+		tag.setTag("r", rlist);
+		
 		return tag;
 	}
 	
@@ -65,6 +79,14 @@ public class TacoData {
 		data.hunger = tag.getDouble("hng");
 		data.saturation = tag.getDouble("sat");
 		data.servings = tag.getInteger("srv");
+		
+		data.iconComponents = new ArrayList<TacoComponent>();
+		NBTTagList rlist = tag.getTagList("r", 10);
+		for (int i=0; i<rlist.tagCount(); i++) {
+			NBTTagCompound part = rlist.getCompoundTagAt(i);
+			String id = part.getString("id");
+			data.iconComponents.add(ModuleTacos.components.get(id));
+		}
 		
 		return data;
 	}
@@ -114,13 +136,20 @@ public class TacoData {
 		stack.getTagCompound().setTag(TACOTAG, data.writeToNBT());
 	}
 	
-	public void calculateHungerSaturation() {
+	public void calculateDataValues() {
 		this.hunger = 0;
 		this.saturation = 0;
 		
 		if (this.container == null) { return; }
 		
+		Collections.sort(this.components, TacoComponent.renderSorter);
+		
 		Map<EnumFlavour, Double> flavours = new HashMap<EnumFlavour,Double>();
+		Set<TacoComponent> doublecheck = new HashSet<TacoComponent>();
+		Map<EnumComponentType, List<TacoComponent>> renderparts = new HashMap<EnumComponentType, List<TacoComponent>>();
+		for (EnumComponentType t : EnumComponentType.values()) {
+			renderparts.put(t, new ArrayList<TacoComponent>());
+		}
 		
 		for (TacoComponent c : this.components) {
 			for (EnumFlavour f : c.flavours.keySet()) {
@@ -129,8 +158,16 @@ public class TacoData {
 				}
 				flavours.put(f, flavours.get(f) + c.flavours.get(f));
 			}
+			
+			if (!doublecheck.contains(c)) {
+				doublecheck.add(c);
+				renderparts.get(c.type).add(c);
+			}
 		}
 		
+		CuttingEdge.logger.info(renderparts);
+		
+		// calc hunger
 		for (EnumFlavour f : flavours.keySet()) {
 			double af = flavours.get(f);
 			this.hunger += f.getCurve(af) * f.hungerMult;
@@ -150,5 +187,28 @@ public class TacoData {
 		
 		this.hunger /= this.container.size;
 		this.saturation /= this.container.size;
+		
+		// calc draw list
+		int rc = EnumComponentType.rendercount;
+		int spare = 0;
+		for (EnumComponentType t : renderparts.keySet()) {
+			int l = renderparts.get(t).size();
+			spare += Math.max(0, l-rc);
+		}
+		
+		this.iconComponents = new ArrayList<TacoComponent>();
+		
+		for (EnumComponentType t : EnumComponentType.values()) {
+			List<TacoComponent> parts = renderparts.get(t);
+			if (parts.size() > rc) {
+				int extra = Math.min(spare, parts.size() - rc);
+				for (int i=0; i<rc + extra; i++) {
+					this.iconComponents.add(parts.get(i));
+				}
+				spare -= extra;
+			} else {
+				this.iconComponents.addAll(parts);
+			}
+		}
 	}
 }

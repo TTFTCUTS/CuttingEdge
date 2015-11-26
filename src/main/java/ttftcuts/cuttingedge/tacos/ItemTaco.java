@@ -1,5 +1,6 @@
 package ttftcuts.cuttingedge.tacos;
 
+import ttftcuts.cuttingedge.CuttingEdge;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -10,6 +11,8 @@ import net.minecraft.util.IIcon;
 
 public class ItemTaco extends ItemFood {
 
+	protected IIcon emptyIcon;
+	
 	public ItemTaco() {
 		super(0, 0, false);
 		this.setUnlocalizedName("tacos.taco");
@@ -54,17 +57,48 @@ public class ItemTaco extends ItemFood {
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister register) {
 		super.registerIcons(register);
+		
+		this.emptyIcon = register.registerIcon(CuttingEdge.MOD_ID+":empty");
+		
+		for (TacoComponent c : ModuleTacos.components.values()) {
+			c.icon = register.registerIcon(c.iconpath);
+		}
 	}
 
 	@Override
+	public boolean requiresMultipleRenderPasses() {
+		return true;
+	}
+	
+	@Override
 	public int getRenderPasses(int metadata) {
-		return super.getRenderPasses(metadata);
+		return EnumComponentType.values().length*EnumComponentType.rendercount;
 	}
 	
 	@Override
 	public IIcon getIcon(ItemStack stack, int pass) {
+		TacoData data = TacoData.getData(stack);
+		if (data != null && data.iconComponents.size() > 0) {
+			if (pass >= data.iconComponents.size()) {
+				return this.emptyIcon;
+			}
+			return data.iconComponents.get(pass).icon;
+		}
 		return super.getIcon(stack, pass);
 	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public int getColorFromItemStack(ItemStack stack, int pass)
+    {
+		TacoData data = TacoData.getData(stack);
+		if (data != null) {
+			if (pass < data.iconComponents.size()) {
+				return data.iconComponents.get(pass).colour;
+			}
+		}
+		return 0xFFFFFF;
+    }
 	
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {

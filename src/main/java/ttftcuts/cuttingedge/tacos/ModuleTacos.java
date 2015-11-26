@@ -13,6 +13,7 @@ import cpw.mods.fml.common.event.FMLInterModComms.IMCMessage;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import ttftcuts.cuttingedge.CuttingEdge;
 import ttftcuts.cuttingedge.Module;
 
 import static ttftcuts.cuttingedge.tacos.EnumComponentType.*;
@@ -59,7 +60,7 @@ public class ModuleTacos extends Module {
 			.setCapacity(Filling, 2.0)
 			.setCapacity(Sauce, 1.0)
 		);
-		TacoComponent.register(new TacoComponent("book", new ItemStack(Items.book), Shell, 1.0)
+		TacoComponent.register(new TacoComponent("book", new ItemStack(Items.book), Shell, 1.0, CuttingEdge.MOD_ID+":tacos/taco_basic", 0xFF00FF)
 			.addFlavour(Dinner, 1.0)
 		);
 		
@@ -68,16 +69,16 @@ public class ModuleTacos extends Module {
 			.setCapacity(Filling, 2.0)
 			.setCapacity(Sauce, 1.0)
 		);
-		TacoComponent.register(new TacoComponent("boat", new ItemStack(Items.boat), Shell, 50.0)
+		TacoComponent.register(new TacoComponent("boat", new ItemStack(Items.boat), Shell, 50.0, CuttingEdge.MOD_ID+":tacos/taco_waffle", 0x00FF00)
 			.addFlavour(Dinner, 1.0)
 		);
 		
-		TacoComponent.register(new TacoComponent("carrot", "cropCarrot", Filling, 1.0)
+		TacoComponent.register(new TacoComponent("carrot", "cropCarrot", Filling, 1.0, CuttingEdge.MOD_ID+":tacos/taco_bacon", 0xFFFFFF)
 			.addFlavour(Fresh, 1.0)
 			.addFlavour(Dinner, 0.5)
 		);
 		
-		TacoComponent.register(new TacoComponent("potato", "cropPotato", Sauce, 1.0)
+		TacoComponent.register(new TacoComponent("potato", "cropPotato", Sauce, 1.0, CuttingEdge.MOD_ID+":tacos/taco_chocolate_syrup", 0xFFFFFF)
 			.addFlavour(Dinner, 0.5)
 			.addFlavour(Salty, 0.1)
 		);

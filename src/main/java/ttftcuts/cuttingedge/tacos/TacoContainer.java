@@ -41,4 +41,8 @@ public class TacoContainer {
 	public static void register(TacoContainer container) {
 		ModuleTacos.containers.put(container.name, container);
 	}
+	
+	public String toString() {
+		return "["+this.getClass().getSimpleName()+": "+this.name+"]";
+	}
 }
