@@ -64,7 +64,10 @@ public class TacoRecipe implements IRecipe {
 				}
 				
 				if (component != null) {
-					ingredients.add(component);
+					int count = component.getSize(stack);
+					for (int c=0; c<count; c++) {
+						ingredients.add(component);
+					}
 				}
 			}
 		}

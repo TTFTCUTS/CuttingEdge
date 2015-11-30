@@ -144,7 +144,7 @@ public class TacoData {
 		
 		Collections.sort(this.components, TacoComponent.renderSorter);
 		
-		Map<EnumFlavour, Double> flavours = new HashMap<EnumFlavour,Double>();
+		Map<TacoFlavour, Double> flavours = new HashMap<TacoFlavour,Double>();
 		Set<TacoComponent> doublecheck = new HashSet<TacoComponent>();
 		Map<EnumComponentType, List<TacoComponent>> renderparts = new HashMap<EnumComponentType, List<TacoComponent>>();
 		for (EnumComponentType t : EnumComponentType.values()) {
@@ -152,11 +152,11 @@ public class TacoData {
 		}
 		
 		for (TacoComponent c : this.components) {
-			for (EnumFlavour f : c.flavours.keySet()) {
+			for (TacoFlavour f : c.flavours.keySet()) {
 				if (!flavours.containsKey(f)) {
 					flavours.put(f, 0.0);
 				}
-				flavours.put(f, flavours.get(f) + c.flavours.get(f));
+				flavours.put(f, flavours.get(f) + (c.flavours.get(f) / (double)this.container.size));
 			}
 			
 			if (!doublecheck.contains(c)) {
@@ -165,14 +165,12 @@ public class TacoData {
 			}
 		}
 		
-		CuttingEdge.logger.info(renderparts);
-		
 		// calc hunger
-		for (EnumFlavour f : flavours.keySet()) {
+		for (TacoFlavour f : flavours.keySet()) {
 			double af = flavours.get(f);
 			this.hunger += f.getCurve(af) * f.hungerMult;
 			this.saturation += f.getCurve(af) * f.saturationMult;
-			for (EnumFlavour r : flavours.keySet()) {
+			for (TacoFlavour r : flavours.keySet()) {
 				if (f == r) { continue; }
 				double rel = f.getRelation(r);
 				if (rel > 0) {
@@ -184,9 +182,6 @@ public class TacoData {
 				}
 			}
 		}
-		
-		this.hunger /= this.container.size;
-		this.saturation /= this.container.size;
 		
 		// calc draw list
 		int rc = EnumComponentType.rendercount;

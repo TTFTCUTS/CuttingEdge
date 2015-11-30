@@ -22,4 +22,8 @@ public class ItemUtil {
 		
 		return true;
 	}
+	
+	public static abstract class ItemMatcher {
+		public abstract boolean matches(ItemStack stack);
+	}
 }

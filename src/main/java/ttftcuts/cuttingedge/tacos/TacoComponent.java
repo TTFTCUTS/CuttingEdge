@@ -10,8 +10,12 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import ttftcuts.cuttingedge.util.ItemUtil;
+import ttftcuts.cuttingedge.util.ItemUtil.ItemMatcher;
 
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -20,7 +24,10 @@ public class TacoComponent {
 	public List<ItemStack> stacks;
 	public EnumComponentType type;
 	public double size;
-	public Map<EnumFlavour, Double> flavours;
+	public Map<TacoFlavour, Double> flavours;
+	public ComponentMatcher matcher;
+	public ItemStack displayStack;
+	public ComponentSizer sizer;
 	
 	@SideOnly(Side.CLIENT)
 	public IIcon icon;
@@ -51,33 +58,49 @@ public class TacoComponent {
 		this (name, type, size, iconpath, colour);
 		this.stacks = new ArrayList<ItemStack>();
 		this.stacks.add(stack);
+		this.displayStack = stack;
 	}
 	
 	public TacoComponent(String name, String orename, EnumComponentType type, double size, String iconpath, int colour) {
 		this (name, type, size, iconpath, colour);
 		this.stacks = OreDictionary.getOres(orename);
+		this.displayStack = this.stacks.get(0);
 	}
 	
-	protected TacoComponent(String name, EnumComponentType type, double size, String iconpath, int colour) {
-		this.flavours = new HashMap<EnumFlavour, Double>();
+	public TacoComponent(String name, ComponentMatcher matcher, ItemStack displaystack, EnumComponentType type, double size, String iconpath, int colour) {
+		this (name, matcher, type, size, iconpath, colour);
+		this.displayStack = displaystack;
+	}
+	
+	protected TacoComponent(String name, ComponentMatcher matcher, EnumComponentType type, double size, String iconpath, int colour) {
+		this.flavours = new HashMap<TacoFlavour, Double>();
 		this.name = name;
 		this.type = type;
 		this.size = size;
 		this.iconpath = iconpath;
 		this.colour = colour;
+		this.matcher = matcher;
+		this.matcher.parent = this;
 	}
 	
-	public TacoComponent addFlavour(EnumFlavour flavour, double amount) {
+	protected TacoComponent(String name, EnumComponentType type, double size, String iconpath, int colour) {
+		this (name, new ComponentMatcher(), type, size, iconpath, colour);
+	}
+	
+	public TacoComponent addFlavour(TacoFlavour flavour, double amount) {
 		this.flavours.put(flavour, amount);
+		return this;
+	}
+	
+	public TacoComponent setSizer(ComponentSizer sizer) {
+		this.sizer = sizer;
 		return this;
 	}
 	
 	public static TacoComponent getComponent(ItemStack stack) {
 		for (TacoComponent c : ModuleTacos.components.values()) {
-			for (ItemStack orestack : c.stacks) {
-				if (ItemUtil.areStacksEqual(orestack, stack)) {
-					return c;
-				}
+			if (c.matcher.matches(stack)) {
+				return c;
 			}
 		}
 		return null;
@@ -93,5 +116,70 @@ public class TacoComponent {
 	
 	public String toString() {
 		return "["+this.getClass().getSimpleName()+": "+this.name+"]";
+	}
+	
+	public int getSize(ItemStack stack) {
+		if (this.sizer != null) {
+			return this.sizer.size(stack);
+		}
+		return 1;
+	}
+	
+	public static abstract class ComponentSizer {
+		public static final ComponentSizer potionSizer = new ComponentSizer() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public int size(ItemStack stack) {
+				if (stack.getItem() == Items.potionitem) {
+					List<PotionEffect> effects = Items.potionitem.getEffects(stack);
+					if (effects != null && !effects.isEmpty()) {
+						for (PotionEffect e : effects) {
+							return e.getAmplifier() + 1;
+						}
+					}
+				}
+				return 1;
+			}
+		};
+		
+		public abstract int size(ItemStack stack);
+	}
+	
+	public static class ComponentMatcher extends ItemMatcher {
+		public TacoComponent parent;
+		
+		@Override
+		public boolean matches(ItemStack stack) {
+			for (ItemStack orestack : parent.stacks) {
+				if (ItemUtil.areStacksEqual(orestack, stack)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+	
+	public static class PotionMatcher extends ComponentMatcher {
+		Potion potion;
+		
+		public PotionMatcher(Potion potion) {
+			this.potion = potion;
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public boolean matches(ItemStack stack) {
+			if (stack.getItem() == Items.potionitem) {
+				List<PotionEffect> effects = Items.potionitem.getEffects(stack);
+				if (effects != null && !effects.isEmpty()) {
+					for (PotionEffect e : effects) {
+						if (e.getPotionID() == this.potion.id) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
 	}
 }

@@ -11,6 +11,7 @@ import ttftcuts.cuttingedge.util.TextUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -62,7 +63,9 @@ public class TacoTipHandler {
 			}
 
 			for (TacoComponent comp : parts.keySet()) {
-				String tip = comp.stacks.get(0).getItem().getRarity(comp.stacks.get(0)).rarityColor + comp.stacks.get(0).getDisplayName() + EnumChatFormatting.GRAY;
+				EnumRarity rarity = comp.displayStack == null ? EnumRarity.common : comp.displayStack.getItem().getRarity(comp.displayStack);
+				String itemname = comp.displayStack == null ? "[NULL ITEM]" : comp.displayStack.getDisplayName();
+				String tip = rarity.rarityColor + itemname + EnumChatFormatting.GRAY;
 				int amount = parts.get(comp);
 				if (amount > 1) {
 					tip += " x"+amount;
@@ -92,10 +95,10 @@ public class TacoTipHandler {
 			if (sneakpressed) {
 				event.toolTip.add(EnumChatFormatting.DARK_GRAY+"-----");
 				
-				Map<EnumFlavour, Double> flavours = new HashMap<EnumFlavour, Double>();
+				Map<TacoFlavour, Double> flavours = new HashMap<TacoFlavour, Double>();
 				
 				for (TacoComponent c : data.components) {
-					for (EnumFlavour f : c.flavours.keySet()) {
+					for (TacoFlavour f : c.flavours.keySet()) {
 						if (!flavours.containsKey(f)) {
 							flavours.put(f, 0.0);
 						}
@@ -103,9 +106,9 @@ public class TacoTipHandler {
 					}
 				}
 				
-				for (EnumFlavour f : EnumFlavour.values()) {
+				for (TacoFlavour f : TacoFlavour.values) {
 					if (flavours.containsKey(f)) {
-						double level = flavours.get(f);
+						double level = flavours.get(f);// * data.container.size;
 						
 						event.toolTip.add("- "+f.flavourLevel(level));
 					}
@@ -126,6 +129,11 @@ public class TacoTipHandler {
 				if (data.hunger > 20) {
 					hunger += EnumChatFormatting.GRAY + "+ ("+((int)Math.floor(data.hunger*0.5)) + ")";
 				}
+				if (hhams < 1) {
+					hunger += "-";
+				}
+				
+				
 				for (int i=0; i<Math.floor(shams); i++) {
 					sat += (char)0x25A0;
 				}
@@ -134,6 +142,9 @@ public class TacoTipHandler {
 				}
 				if (data.saturation > 20) {
 					sat += EnumChatFormatting.GRAY + "+ ("+((int)Math.floor(data.saturation*0.5)) + ")";
+				}
+				if (shams < 1) {
+					sat += "-";
 				}
 				
 				event.toolTip.add(hunger);
@@ -181,9 +192,10 @@ public class TacoTipHandler {
 						event.toolTip.add(EnumChatFormatting.DARK_GRAY+"-----");
 					}
 					
-					event.toolTip.add(component.type.style + component.type.display() + EnumChatFormatting.GRAY + " "+StatCollector.translateToLocal("tacos.size") + " " + dmult(component.size)+":");
+					double size = component.size * component.getSize(event.itemStack);
+					event.toolTip.add(component.type.style + component.type.display() + EnumChatFormatting.GRAY + " "+StatCollector.translateToLocal("tacos.size") + " " + dmult(size)+":");
 					
-					for (EnumFlavour f : EnumFlavour.values()) {
+					for (TacoFlavour f : TacoFlavour.values) {
 						if (component.flavours.containsKey(f)) {
 							double level = component.flavours.get(f);
 							
