@@ -9,10 +9,13 @@ import java.util.Map;
 import java.util.Set;
 
 import ttftcuts.cuttingedge.CuttingEdge;
+import ttftcuts.cuttingedge.tacos.TacoPotions.PotionCurve;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 
 public class TacoData {
 	public TacoContainer container;
@@ -23,6 +26,7 @@ public class TacoData {
 	public double saturation = 0;
 	public int servings = 0;
 	public List<TacoComponent> iconComponents = new ArrayList<TacoComponent>();
+	public List<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
 	
 	public TacoData() {
 		this.components = new ArrayList<TacoComponent>();
@@ -56,6 +60,14 @@ public class TacoData {
 		}
 		tag.setTag("r", rlist);
 		
+		NBTTagList potionlist = new NBTTagList();
+		for (PotionEffect effect : this.potionEffects) {
+			NBTTagCompound part = new NBTTagCompound();
+			effect.writeCustomPotionEffectToNBT(part);
+			potionlist.appendTag(part);
+		}
+		tag.setTag("pot", potionlist);
+		
 		return tag;
 	}
 	
@@ -86,6 +98,14 @@ public class TacoData {
 			NBTTagCompound part = rlist.getCompoundTagAt(i);
 			String id = part.getString("id");
 			data.iconComponents.add(ModuleTacos.components.get(id));
+		}
+		
+		data.potionEffects = new ArrayList<PotionEffect>();
+		NBTTagList plist = tag.getTagList("pot", 10);
+		for (int i=0; i<plist.tagCount(); i++) {
+			NBTTagCompound part = plist.getCompoundTagAt(i);
+			PotionEffect pe = PotionEffect.readCustomPotionEffectFromNBT(part);
+			data.potionEffects.add(pe);
 		}
 		
 		return data;
@@ -165,9 +185,18 @@ public class TacoData {
 			}
 		}
 		
-		// calc hunger
+		// calc hunger and potions
+		Map<Potion, Double> potioncount = new HashMap<Potion,Double>();
 		for (TacoFlavour f : flavours.keySet()) {
 			double af = flavours.get(f);
+			
+			if(f.potion != null) {
+				if (!potioncount.containsKey(f.potion)) {
+					potioncount.put(f.potion, 0.0);
+				}
+				potioncount.put(f.potion, potioncount.get(f.potion) + af);
+			}
+			
 			this.hunger += f.getCurve(af) * f.hungerMult;
 			this.saturation += f.getCurve(af) * f.saturationMult;
 			for (TacoFlavour r : flavours.keySet()) {
@@ -181,6 +210,16 @@ public class TacoData {
 					this.saturation += s;
 				}
 			}
+		}
+		
+		for (Potion p : potioncount.keySet()) {
+			double amount = potioncount.get(p);
+			PotionCurve curve = TacoPotions.getCurve(p);
+			
+			PotionEffect pe = new PotionEffect(p.id, curve.getPotionDuration(p, amount), curve.getPotionLevel(p, amount));
+			this.potionEffects.add(pe);
+			
+			CuttingEdge.logger.info(p+": "+amount);
 		}
 		
 		// calc draw list

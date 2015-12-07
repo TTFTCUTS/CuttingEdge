@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cpw.mods.fml.common.registry.GameRegistry;
-
-import net.minecraft.init.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
@@ -110,7 +107,6 @@ public class TacoFlavour {
 	public final double saturationMult;
 	public TasteCurve curve = null;
 	public Potion potion = null;
-	public PotionCurve potioncurve = null;
 	
 	public TacoFlavour(String name, double hunger, double sat) {
 		this.name = name;
@@ -126,8 +122,7 @@ public class TacoFlavour {
 		this.relations.put(to, amount);
 	}
 	
-	protected void setPotion(Potion potion, PotionCurve curve) {
-		this.potioncurve = curve;
+	protected void setPotion(Potion potion) {
 		this.potion = potion;
 	}
 	
@@ -142,7 +137,7 @@ public class TacoFlavour {
 		for (Potion p : Potion.potionTypes) {
 			if (p == null) { continue; }
 			TacoFlavour f = new PotionFlavour("pot_"+p.getName(), 0.0, -0.5);
-			f.setPotion(p, PotionCurve.basic);
+			f.setPotion(p);
 			potionFlavours.put(p, f);
 		}
 		
@@ -214,31 +209,6 @@ public class TacoFlavour {
 				return pos * gain + neg * decay;
 			}
 			return level * gain;
-		}
-	}
-	
-	public static class PotionCurve {
-		public final double durGain;
-		public final double levelCost;
-		public final double levelAdd;
-		public final double levelMult;
-		
-		public static final PotionCurve basic = new PotionCurve(0, 200.0, 3.0, -1600.0, 1.0);
-		
-		public PotionCurve(double threshold, double durationPerPoint, double pointsPerLevel, double durationPerLevel, double durationMult) {
-			this.durGain = durationPerPoint;
-			this.levelCost = pointsPerLevel;
-			this.levelAdd = durationPerLevel;
-			this.levelMult = durationMult;
-		}
-		
-		public int getPotionLevel(double level) {
-			return (int)Math.ceil(level / this.levelCost);
-		}
-		
-		public int getPotionDuration(double level) {
-			int pl = this.getPotionDuration(level);
-			return (int)Math.floor((this.durGain * level + (pl-1) * this.levelAdd) * this.levelMult);
 		}
 	}
 	

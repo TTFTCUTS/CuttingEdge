@@ -150,6 +150,8 @@ public class TacoTipHandler {
 				event.toolTip.add(hunger);
 				event.toolTip.add(sat);
 				
+				TacoPotions.potionTips(data, event.toolTip);
+				
 				if (data.container.size > 1) {
 					event.toolTip.add(String.format(StatCollector.translateToLocal("tacos.servings"), data.servings, data.container.size));
 					if (event.itemStack.stackSize > 1) {
